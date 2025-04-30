@@ -32,6 +32,7 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -47,38 +48,96 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
                 final item = cart.items[index];
                 return Card(
                   margin:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: ListTile(
-                    title: Text(item.product.name),
-                    subtitle: Row(
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
                       children: [
-                        Text(
-                            '${item.quantity} × ${CurrencyFormatter.format(item.product.price)}'),
-                        const SizedBox(width: 8),
-                        Text('GST: ${item.product.gstPercentage}%'),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle,
-                              color: Colors.red),
-                          onPressed: () {
-                            if (item.quantity > 1) {
-                              cart.updateQuantity(index, item.quantity - 1);
-                            } else {
-                              _confirmRemoveItem(index);
-                            }
-                          },
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.product.name,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Text(
+                                    '${item.quantity} × ${CurrencyFormatter.format(item.product.price)}',
+                                    style: TextStyle(
+                                      color: theme.colorScheme.onSurface
+                                          .withOpacity(0.8),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: theme.colorScheme.primaryContainer,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'GST: ${item.product.gstPercentage}%',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: theme
+                                            .colorScheme.onPrimaryContainer,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        Text('${item.quantity}'),
-                        IconButton(
-                          icon:
-                              const Icon(Icons.add_circle, color: Colors.green),
-                          onPressed: () {
-                            cart.updateQuantity(index, item.quantity + 1);
-                          },
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle,
+                                  color: Colors.red),
+                              onPressed: () {
+                                if (item.quantity > 1) {
+                                  cart.updateQuantity(index, item.quantity - 1);
+                                } else {
+                                  _confirmRemoveItem(index);
+                                }
+                              },
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surface,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: theme.colorScheme.outline
+                                        .withOpacity(0.3)),
+                              ),
+                              child: Text(
+                                '${item.quantity}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle,
+                                  color: Colors.green),
+                              onPressed: () {
+                                cart.updateQuantity(index, item.quantity + 1);
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -90,101 +149,108 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
 
           // Summary
           Container(
-            color: Colors.grey.shade100,
+            color: theme.colorScheme.surface,
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Subtotal:', style: TextStyle(fontSize: 16)),
-                    Text(CurrencyFormatter.format(cart.subtotal),
-                        style: const TextStyle(fontSize: 16)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('CGST:', style: TextStyle(fontSize: 16)),
-                    Text(CurrencyFormatter.format(cart.totalCgst),
-                        style: const TextStyle(fontSize: 16)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('SGST:', style: TextStyle(fontSize: 16)),
-                    Text(CurrencyFormatter.format(cart.totalSgst),
-                        style: const TextStyle(fontSize: 16)),
-                  ],
-                ),
-                const Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Total:',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text(CurrencyFormatter.format(cart.total),
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                  ],
-                ),
+                _buildSummaryRow('Subtotal:',
+                    CurrencyFormatter.format(cart.subtotal), theme),
+                _buildSummaryRow(
+                    'CGST:', CurrencyFormatter.format(cart.totalCgst), theme),
+                _buildSummaryRow(
+                    'SGST:', CurrencyFormatter.format(cart.totalSgst), theme),
+                const Divider(height: 24),
+                _buildSummaryRow(
+                    'Total:', CurrencyFormatter.format(cart.total), theme,
+                    isTotal: true),
               ],
             ),
           ),
 
           // Customer details form
-          Form(
-            key: _formKey,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+          Container(
+            color: theme.colorScheme.surface,
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Customer Details (Optional)',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      )),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.person_outline,
+                        color: theme.colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Customer Details (Optional)',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _customerNameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Customer Name',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.person),
+                      filled: true,
+                      fillColor: theme.colorScheme.surface,
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _customerPhoneController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Customer Phone',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.phone),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.phone),
+                      filled: true,
+                      fillColor: theme.colorScheme.surface,
                     ),
                     keyboardType: TextInputType.phone,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _customerGstinController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Customer GSTIN',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.numbers),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.numbers),
+                      filled: true,
+                      fillColor: theme.colorScheme.surface,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton(
+                  FilledButton.icon(
                     onPressed: _isSubmitting ? null : _createInvoice,
-                    style: ElevatedButton.styleFrom(
+                    style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(50),
                     ),
-                    child: _isSubmitting
-                        ? const CircularProgressIndicator()
+                    icon: const Icon(Icons.receipt_long_outlined),
+                    label: _isSubmitting
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: theme.colorScheme.onPrimary,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              const Text('Processing...'),
+                            ],
+                          )
                         : const Text('Generate Invoice',
                             style: TextStyle(fontSize: 16)),
                   ),
@@ -197,25 +263,64 @@ class _InvoiceDetailsScreenState extends State<InvoiceDetailsScreen> {
     );
   }
 
+  Widget _buildSummaryRow(String label, String value, ThemeData theme,
+      {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: isTotal ? 18 : 16,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: isTotal ? 18 : 16,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              color: isTotal
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _confirmRemoveItem(int index) {
     final item = Provider.of<CartProvider>(context, listen: false).items[index];
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Item'),
+        title: Text(
+          'Remove Item',
+          style: TextStyle(color: theme.colorScheme.error),
+        ),
         content: Text('Are you sure you want to remove ${item.product.name}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          FilledButton.tonal(
             onPressed: () {
               Provider.of<CartProvider>(context, listen: false)
                   .removeItem(index);
               Navigator.of(context).pop();
             },
-            child: const Text('Remove', style: TextStyle(color: Colors.red)),
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.errorContainer,
+              foregroundColor: theme.colorScheme.onErrorContainer,
+            ),
+            child: const Text('Remove'),
           ),
         ],
       ),
