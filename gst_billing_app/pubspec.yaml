@@ -44,6 +44,7 @@ dependencies:
   printing: ^5.11.0
   flutter_barcode_scanner: ^2.0.0
   shared_preferences: ^2.2.0
+  google_fonts: ^5.1.0
 
 dev_dependencies:
   flutter_test:

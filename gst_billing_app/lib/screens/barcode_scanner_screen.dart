@@ -6,11 +6,11 @@ import '../services/database_service.dart';
 import '../utils/currency_formatter.dart';
 
 class BarcodeScannerScreen extends StatefulWidget {
-  final Function(Product, int) onProductScanned;
+  final Function(Product, int)? onProductScanned;
 
   const BarcodeScannerScreen({
     Key? key,
-    required this.onProductScanned,
+    this.onProductScanned,
   }) : super(key: key);
 
   @override
@@ -136,7 +136,13 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
       return;
     }
 
-    widget.onProductScanned(_scannedProduct!, quantity);
+    if (widget.onProductScanned != null) {
+      widget.onProductScanned!(_scannedProduct!, quantity);
+    } else {
+      // If no callback is provided, just navigate back with the result
+      Navigator.pop(
+          context, {'product': _scannedProduct, 'quantity': quantity});
+    }
 
     // Clear for next scan
     setState(() {
