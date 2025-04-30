@@ -16,13 +16,25 @@ class InvoiceViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final databaseService = DatabaseService();
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Invoice'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.print),
+            icon: const Icon(Icons.share_outlined),
+            tooltip: 'Share Invoice',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Share functionality not implemented yet')),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.print_outlined),
+            tooltip: 'Print Invoice',
             onPressed: () async {
               final invoice = await databaseService.getInvoiceById(invoiceId);
               if (invoice != null) {
@@ -53,29 +65,46 @@ class InvoiceViewScreen extends StatelessWidget {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeader(invoice),
+                _buildHeader(invoice, theme),
+                _buildCustomerInfo(invoice, theme),
+                _buildItemsTable(invoice, theme),
+                _buildSummary(invoice, theme),
+                _buildFooter(theme),
                 const SizedBox(height: 24),
-                _buildCustomerInfo(invoice),
-                const SizedBox(height: 24),
-                _buildItemsTable(invoice),
-                const SizedBox(height: 24),
-                _buildSummary(invoice),
-                const SizedBox(height: 32),
-                _buildFooter(),
-                const SizedBox(height: 24),
-                Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      await _printInvoice(context, invoice);
-                    },
-                    icon: const Icon(Icons.print),
-                    label: const Text('Print Invoice'),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            await _printInvoice(context, invoice);
+                          },
+                          icon: const Icon(Icons.print_outlined),
+                          label: const Text('Print'),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'Share functionality not implemented yet')),
+                            );
+                          },
+                          icon: const Icon(Icons.share_outlined),
+                          label: const Text('Share'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 24),
               ],
             ),
           );
@@ -84,226 +113,338 @@ class InvoiceViewScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(Invoice invoice) {
+  Widget _buildHeader(Invoice invoice, ThemeData theme) {
     final dateFormat = DateFormat('dd/MM/yyyy hh:mm a');
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Center(
-          child: Text(
-            'TATA Retail Solutions',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+    return Container(
+      width: double.infinity,
+      color: theme.colorScheme.primary,
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Center(
+            child: Text(
+              'TATA Retail Solutions',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-        const Center(
-          child: Text(
-            'GST Invoice',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+          const Center(
+            child: Text(
+              'GST Invoice',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Invoice No:',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(invoice.id),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const Text('Date & Time:',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(dateFormat.format(invoice.createdAt)),
-              ],
-            ),
-          ],
-        ),
-      ],
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Invoice No:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white70)),
+                  Text(invoice.id, style: const TextStyle(color: Colors.white)),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text('Date & Time:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white70)),
+                  Text(dateFormat.format(invoice.createdAt),
+                      style: const TextStyle(color: Colors.white)),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildCustomerInfo(Invoice invoice) {
+  Widget _buildCustomerInfo(Invoice invoice, ThemeData theme) {
     if (invoice.customerName == null &&
         invoice.customerPhone == null &&
         invoice.customerGstin == null) {
       return const SizedBox.shrink();
     }
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Customer Details',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.person_outline,
+                    color: theme.colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Customer Details',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            if (invoice.customerName != null)
-              Text('Name: ${invoice.customerName}'),
-            if (invoice.customerPhone != null)
-              Text('Phone: ${invoice.customerPhone}'),
-            if (invoice.customerGstin != null)
-              Text('GSTIN: ${invoice.customerGstin}'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildItemsTable(Invoice invoice) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                'Items',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Table(
-              border: TableBorder.all(color: Colors.grey.shade300),
-              columnWidths: const {
-                0: FlexColumnWidth(3), // Item
-                1: FlexColumnWidth(1), // Qty
-                2: FlexColumnWidth(2), // Price
-                3: FlexColumnWidth(1), // GST%
-                4: FlexColumnWidth(2), // Amount
-              },
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(color: Colors.grey.shade100),
-                  children: [
-                    _tableHeader('Item'),
-                    _tableHeader('Qty'),
-                    _tableHeader('Price'),
-                    _tableHeader('GST%'),
-                    _tableHeader('Amount'),
-                  ],
-                ),
-                for (var item in invoice.items)
-                  TableRow(
+              const SizedBox(height: 8),
+              const Divider(),
+              if (invoice.customerName != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Row(
                     children: [
-                      _tableCell(item.product.name),
-                      _tableCell(item.quantity.toString()),
-                      _tableCell(CurrencyFormatter.format(item.product.price)),
-                      _tableCell('${item.product.gstPercentage}%'),
-                      _tableCell(CurrencyFormatter.format(item.total)),
+                      const Icon(Icons.person, size: 16),
+                      const SizedBox(width: 8),
+                      Text('Name: ${invoice.customerName}'),
                     ],
                   ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _tableHeader(String text) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        text,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _tableCell(String text) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _buildSummary(Invoice invoice) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Subtotal:'),
-                Text(CurrencyFormatter.format(invoice.subtotal)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('CGST:'),
-                Text(CurrencyFormatter.format(invoice.totalCgst)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('SGST:'),
-                Text(CurrencyFormatter.format(invoice.totalSgst)),
-              ],
-            ),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Total:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  CurrencyFormatter.format(invoice.total),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+              if (invoice.customerPhone != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.phone, size: 16),
+                      const SizedBox(width: 8),
+                      Text('Phone: ${invoice.customerPhone}'),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFooter() {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          'Thank you for shopping with us!',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+              if (invoice.customerGstin != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.numbers, size: 16),
+                      const SizedBox(width: 8),
+                      Text('GSTIN: ${invoice.customerGstin}'),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ),
-        SizedBox(height: 8),
-        Text('For queries, contact: support@tataretail.com'),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildItemsTable(Invoice invoice, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    color: theme.colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Items',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Table(
+                border: TableBorder.all(color: Colors.grey.shade300),
+                columnWidths: const {
+                  0: FlexColumnWidth(3), // Item
+                  1: FlexColumnWidth(1), // Qty
+                  2: FlexColumnWidth(2), // Price
+                  3: FlexColumnWidth(1), // GST%
+                  4: FlexColumnWidth(2), // Amount
+                },
+                children: [
+                  TableRow(
+                    decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer),
+                    children: [
+                      _tableHeader('Item', theme),
+                      _tableHeader('Qty', theme),
+                      _tableHeader('Price', theme),
+                      _tableHeader('GST%', theme),
+                      _tableHeader('Amount', theme),
+                    ],
+                  ),
+                  for (var item in invoice.items)
+                    TableRow(
+                      children: [
+                        _tableCell(item.product.name, theme),
+                        _tableCell(item.quantity.toString(), theme),
+                        _tableCell(CurrencyFormatter.format(item.product.price),
+                            theme),
+                        _tableCell('${item.product.gstPercentage}%', theme),
+                        _tableCell(CurrencyFormatter.format(item.total), theme),
+                      ],
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _tableHeader(String text, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: theme.colorScheme.onPrimaryContainer,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _tableCell(String text, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(color: theme.colorScheme.onSurface),
+      ),
+    );
+  }
+
+  Widget _buildSummary(Invoice invoice, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.receipt_long_outlined,
+                    color: theme.colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Summary',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Divider(),
+              _summaryRow('Subtotal:',
+                  CurrencyFormatter.format(invoice.subtotal), theme),
+              _summaryRow(
+                  'CGST:', CurrencyFormatter.format(invoice.totalCgst), theme),
+              _summaryRow(
+                  'SGST:', CurrencyFormatter.format(invoice.totalSgst), theme),
+              const Divider(),
+              _summaryRow(
+                  'Total:', CurrencyFormatter.format(invoice.total), theme,
+                  isTotal: true),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _summaryRow(String label, String value, ThemeData theme,
+      {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 16 : 14,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 16 : 14,
+              color: isTotal
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFooter(ThemeData theme) {
+    return Container(
+      padding: const EdgeInsets.all(24.0),
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'Thank you for shopping with us!',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.email_outlined, size: 16),
+              SizedBox(width: 4),
+              Text('support@tataretail.com'),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

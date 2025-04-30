@@ -38,37 +38,6 @@ class _MainScreenState extends State<MainScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[_selectedIndex]),
-        centerTitle: true,
-        elevation: 0,
-        actions: [
-          if (_selectedIndex == 1) // Only show on New Bill screen
-            IconButton(
-              icon: const Icon(Icons.qr_code_scanner),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BarcodeScannerScreen(),
-                  ),
-                );
-              },
-            ),
-          if (_selectedIndex == 2) // Only show on Products screen
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProductFormScreen(),
-                  ),
-                );
-              },
-            ),
-        ],
-      ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

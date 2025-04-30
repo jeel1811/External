@@ -208,46 +208,89 @@ class _NewBillScreenState extends State<NewBillScreen> {
 
           // Cart summary
           Container(
-            color: Colors.grey.shade200,
+            color: Theme.of(context).colorScheme.surface,
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Items:', style: TextStyle(fontSize: 16)),
-                    Text('${cart.itemCount}',
-                        style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'Items:',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      '${cart.itemCount}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Subtotal:', style: TextStyle(fontSize: 16)),
-                    Text(CurrencyFormatter.format(cart.subtotal),
-                        style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'Subtotal:',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      CurrencyFormatter.format(cart.subtotal),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('GST:', style: TextStyle(fontSize: 16)),
-                    Text(CurrencyFormatter.format(cart.totalGst),
-                        style: const TextStyle(fontSize: 16)),
+                    Text(
+                      'GST:',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      CurrencyFormatter.format(cart.totalGst),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                   ],
                 ),
                 const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Total:',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text(CurrencyFormatter.format(cart.total),
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Total:',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      CurrencyFormatter.format(cart.total),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),

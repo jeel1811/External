@@ -237,18 +237,43 @@ class _InvoiceHistoryScreenState extends State<InvoiceHistoryScreen> {
                                     Text('Customer: ${invoice.customerName}'),
                                 ],
                               ),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.visibility,
-                                    color: Colors.blue),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => InvoiceViewScreen(
-                                          invoiceId: invoice.id),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.remove_red_eye_outlined,
+                                      color: Colors.blue,
                                     ),
-                                  );
-                                },
+                                    tooltip: 'View Invoice',
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              InvoiceViewScreen(
+                                                  invoiceId: invoice.id),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.share_outlined,
+                                      color: Colors.green,
+                                    ),
+                                    tooltip: 'Share Invoice',
+                                    onPressed: () {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Share functionality not implemented yet'),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                               onTap: () {
                                 Navigator.push(
@@ -268,6 +293,12 @@ class _InvoiceHistoryScreenState extends State<InvoiceHistoryScreen> {
                       ),
           ),
         ],
+      ),
+      // Add a floating action button for filtering
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showDateRangePicker,
+        tooltip: 'Filter by date',
+        child: const Icon(Icons.filter_list),
       ),
     );
   }
