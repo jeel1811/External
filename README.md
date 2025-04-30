@@ -56,7 +56,7 @@ The app allows staff to quickly add products, apply the correct GST rates (5%, 1
 
 2. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/gst_billing_app.git
+   git clone https://github.com/jeel1811/gst_billing_app.git
    cd gst_billing_app
    ```
 
