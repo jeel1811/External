@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dashboard_screen.dart';
 import 'new_bill_screen.dart';
 import 'product_list_screen.dart';
 import 'invoice_history_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -24,6 +26,17 @@ class HomeScreen extends StatelessWidget {
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
                 children: [
+                  _buildMenuCard(
+                    context,
+                    'Dashboard',
+                    Icons.dashboard,
+                    Colors.purple,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const DashboardScreen()),
+                    ),
+                  ),
                   _buildMenuCard(
                     context,
                     'New Bill',
@@ -61,13 +74,33 @@ class HomeScreen extends StatelessWidget {
                     context,
                     'Settings',
                     Icons.settings,
-                    Colors.purple,
+                    Colors.grey.shade700,
+                    () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SettingsScreen()),
+                    ),
+                  ),
+                  _buildMenuCard(
+                    context,
+                    'About',
+                    Icons.info,
+                    Colors.teal,
                     () {
-                      // Show settings dialog or navigate to settings screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text(
-                                'Settings will be available in future updates')),
+                      showAboutDialog(
+                        context: context,
+                        applicationName: 'GST Billing App',
+                        applicationVersion: 'v1.0.0',
+                        applicationIcon: const Icon(Icons.receipt_long,
+                            size: 50, color: Colors.blue),
+                        applicationLegalese:
+                            '© 2023 TATA Retail Solutions\nAll rights reserved',
+                        children: const [
+                          SizedBox(height: 16),
+                          Text(
+                              'GST Billing App developed for TATA Retail Solutions to streamline '
+                              'GST calculations, billing operations, and invoice management.'),
+                        ],
                       );
                     },
                   ),

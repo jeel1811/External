@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import '../services/database_service.dart';
 import '../utils/currency_formatter.dart';
+import 'barcode_scanner_screen.dart';
 import 'invoice_details_screen.dart';
 
 class NewBillScreen extends StatefulWidget {
@@ -71,30 +71,18 @@ class _NewBillScreenState extends State<NewBillScreen> {
     });
   }
 
-  Future<void> _scanBarcode() async {
-    try {
-      String barcode = await FlutterBarcodeScanner.scanBarcode(
-        '#FF6666',
-        'Cancel',
-        true,
-        ScanMode.BARCODE,
-      );
-
-      if (barcode != '-1') {
-        final product = await _databaseService.getProductByBarcode(barcode);
-        if (product != null) {
-          _showQuantityDialog(product);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No product found with barcode: $barcode')),
-          );
-        }
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error scanning barcode: ${e.toString()}')),
-      );
-    }
+  void _openBarcodeScanner() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BarcodeScannerScreen(
+          onProductScanned: (product, quantity) {
+            Provider.of<CartProvider>(context, listen: false)
+                .addProduct(product, quantity);
+          },
+        ),
+      ),
+    );
   }
 
   void _showQuantityDialog(Product product) {
@@ -158,7 +146,7 @@ class _NewBillScreenState extends State<NewBillScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
-            onPressed: _scanBarcode,
+            onPressed: _openBarcodeScanner,
           ),
         ],
       ),
